@@ -3,6 +3,8 @@
 import type { BharatEnv, EnvId, Split, TaskSpec, Grade } from '../contracts/contract.js';
 import { KiranaEnv } from '../envs/kirana/env.js';
 import { KIRANA_TASKS } from '../envs/kirana/cases.js';
+import { GstEnv } from '../envs/gst/env.js';
+import { GST_CASES } from '../envs/gst/cases.js';
 import { audienceTasks } from './cache.js';
 import { GRADER_VERSION } from './runner.js';
 
@@ -17,6 +19,7 @@ export interface EnvRegistration {
 // gst-filing-v1 / upi-dispute-v1: register here once their env + cases land in src/envs/<name>/.
 export const ENVS: EnvRegistration[] = [
   { id: 'kirana-v1', name: 'Kirana Counter', graderVersion: GRADER_VERSION, make: () => new KiranaEnv(), tasks: KIRANA_TASKS },
+  { id: 'gst-filing-v1', name: 'GST Filing Desk', graderVersion: GRADER_VERSION, make: () => new GstEnv(), tasks: GST_CASES },
 ];
 
 export const envById = (id: string) => ENVS.find(e => e.id === id);
