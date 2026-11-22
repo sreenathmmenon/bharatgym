@@ -24,7 +24,7 @@ export const KIRANA_TASKS: TaskSpec[] = [
     { cart: [{ skuId: 'atta', qty: 1 }, { skuId: 'rice', qty: 1 }], totalPaise: paise(333) }),        // 265 + 68
   T('K8', 'TRAIN', 'TWIN RECEIPT A: ask first', 'ek Amul Taaza dena. Agar nahi hai, doosra brand chalega, par pehle mujhse pooch lena.',
     {
-      cart: [{ skuId: 'milk', qty: 2 }, { skuId: 'plg', qty: 1 }], totalPaise: paise(60),
+      cart: [{ skuId: 'milk', qty: 1 }], totalPaise: paise(25),
       requiresConsentFor: 'milk',
       customerScript: [{ reply: 'Haan theek hai, Nandini chalega.', grantsConsentFor: 'milk' }],
     }),
