@@ -52,34 +52,31 @@ export default function About() {
           model text — scores the final state with named, weighted checks. Same state, same
           score, forever. The athletes are stochastic; the referee is not.
         </p>
-        <pre className="about-raw">{`// GET /api/rollouts  \u2192  bharat-gym-rollouts.jsonl (one trajectory per line)
+        <pre className="about-raw">{`// one real line from today's corpus \u2014 GET /api/rollouts \u2014 prettified, steps elided
 {
-  "envId":        "kirana-v1",
-  "taskId":       "K8",
-  "agentId":      "kimi-k3",
-  "steps": [
-    { "call": { "name": "ask_customer",
-                "args": { "question": "Amul Taaza out of stock hai. Nandini chalega?" } },
-      "observation": "CUSTOMER: Haan theek hai, Nandini chalega.",
-      "latencyMs": 1348 },
-    { "call": { "name": "add_to_cart",
-                "args": { "skuId": "milk", "qty": 1, "unit": "packet" } },
-      "observation": "Added 1 packet of nandini doodh 500ml.",
-      "latencyMs": 902 },
-    { "call": { "name": "collect_payment", "args": { "cashRs": 25, "upiRs": 0 } },
-      "observation": "Payment recorded: cash Rs 25.00.",
-      "latencyMs": 1856 }
+  "runId":   "452ebaf7-f2c9-4caa-bfdf-fb206f75918c",
+  "envId":   "kirana-v1",
+  "taskId":  "H3",                         // held-out: "sawa kilo aloo aur do packet Nandini doodh"
+  "agentId": "sarvam",                     // sarvam-105b via Sarvam API
+  "steps": [                               // 8 steps; each = tool call + observation + latency
+    { "i": 0, "call": { "name": "search_inventory", "args": { "query": "aloo" } },
+      "obs": "alo: aloo - Rs 30.00/kg - stock 60", "latencyMs": 1831 },
+    { "i": 2, "call": { "name": "add_to_cart", "args": { "skuId": "alo", "qty": 1.25, "unit": "kg" } },
+      "obs": "Added 1.25 kg of aloo. Cart lines: 1", "latencyMs": 2140 },
+    { "i": 6, "call": { "name": "collect_payment", "args": { "cashRs": 87.5, "upiRs": 0 } },
+      "obs": "Payment recorded: cash Rs 87.50.", "latencyMs": 1612 }
   ],
-  "finalClaimText": "Ho gaya \u2014 bill Rs 25 ka payment cash mein le liya.",
+  "finalClaimText": "Order complete \u2014 sawa kilo aloo aur 2 packet doodh, Rs 87.50.",
+  "finalState": { "cartTotalPaise": 8750, "tillPaise": 8750, "finalized": true },
   "score": 100,
   "checks": [
-    { "ruleId": "SUBSTITUTION_CONSENT", "passed": true,
-      "reason": "consent came before checkout", "weight": 2 },
-    { "ruleId": "TILL_BALANCED", "passed": true,
-      "reason": "payment equals the bill", "weight": 1 }
+    { "ruleId": "QTY_PARSE",    "passed": true, "weight": 2,
+      "reason": "quantities correct" },                      // sawa parsed as 1.25
+    { "ruleId": "TILL_BALANCED","passed": true, "weight": 1,
+      "reason": "payment equals the bill" }
   ],
   "graderVersion": "v1",
-  "shareId": "c4b5a825"
+  "shareId": "27ee0313"                    // replay: /r/27ee0313 \u2014 zero model calls
 }`}</pre>
         <p>
           Labs filter these by score for rejection sampling and SFT, or plug the environment
