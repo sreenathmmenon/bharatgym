@@ -51,6 +51,7 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
   const [tasks, setTasks] = useState<PublicTask[]>([]);
   const [selected, setSelected] = useState('K5');
   const [peek, setPeek] = useState(false);
+  const [racedTask, setRacedTask] = useState<PublicTask | null>(null);
   useEffect(() => { setPeek(false); }, [selected]);
 
   useEffect(() => {
@@ -69,6 +70,8 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
   const runLive = () => {
     if (!selected) return;
     setMode('live');
+    setRacedTask(liveTask ?? null);
+    setPeek(false);
     connectSSE(`/api/run?taskId=${encodeURIComponent(selected)}`);
   };
   const runDemo = () => {
@@ -98,14 +101,15 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
     }
   }, [mode, graded, race.done]);
 
-  const shownSplit = mode === 'live' && liveTask ? liveTask.split : DEMO_TASK.split;
-  const sealedTask = mode === 'live' && liveTask?.split === 'HELD_OUT';
-  const promptText = mode === 'live' && liveTask ? liveTask.prompt : DEMO_TASK.prompt;
+  const shownTask = mode === 'live' ? racedTask : null;
+  const shownSplit = shownTask ? shownTask.split : DEMO_TASK.split;
+  const sealedTask = shownTask?.split === 'HELD_OUT';
+  const promptText = shownTask ? shownTask.prompt : DEMO_TASK.prompt;
   const shownPrompt = sealedTask && !peek
     ? 'Prompt sealed \u2014 click the eye to reveal'
     : (promptText ?? 'Prompt locked on this deployment \u2014 reveal happens on stage');
-  const shownMeta = mode === 'live' && liveTask
-    ? `[${liveTask.id}] ${liveTask.title}`
+  const shownMeta = shownTask
+    ? `[${shownTask.id}] ${shownTask.title}`
     : `[${DEMO_TASK.id}] ${DEMO_TASK.title}${DEMO_TASK.contributor ? ` · contributed by ${DEMO_TASK.contributor}` : ''}`;
 
   return (
