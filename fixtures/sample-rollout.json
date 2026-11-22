@@ -1,0 +1,16 @@
+{"runId":"fx-1","envId":"kirana-v1","taskId":"H1","agentId":"gpt","steps":[
+ {"i":0,"call":{"name":"search_inventory","args":{"query":"tamatar"}},"obs":"tmt: tamatar - Rs 52.00/kg - stock 40","latencyMs":812},
+ {"i":1,"call":{"name":"add_to_cart","args":{"skuId":"tmt","qty":2,"unit":"kg"}},"obs":"Added 2 kg of tamatar.","latencyMs":1304},
+ {"i":2,"call":{"name":"add_to_cart","args":{"skuId":"chai","qty":1,"unit":"pack"}},"obs":"Added 1 pack of Red Label chai.","latencyMs":990},
+ {"i":3,"call":{"name":"generate_bill","args":{}},"obs":"BILL: Rs 189.00 for 2 lines.","latencyMs":701},
+ {"i":4,"call":{"name":"collect_payment","args":{"cashRs":0,"upiRs":189}},"obs":"Payment recorded.","latencyMs":655}],
+"finalClaimText":"Done! Bill Rs 163.00 - perfectly tallied.",
+"finalState":{},
+"score":56,
+"checks":[
+ {"ruleId":"ITEM_MATCH","label":"All ordered items in cart","passed":true,"reason":"every ordered item present","weight":2},
+ {"ruleId":"QTY_PARSE","label":"Quantities correct","passed":false,"reason":"'dedh kilo' billed as 2 kg","weight":2},
+ {"ruleId":"ARITHMETIC_TOTAL","label":"Bill total exact","passed":false,"reason":"billed Rs 189.00, correct Rs 163.00","weight":2},
+ {"ruleId":"NO_HALLUCINATION","label":"No invented items","passed":true,"reason":"cart clean","weight":1},
+ {"ruleId":"FINALIZED","label":"Payment collected","passed":true,"reason":"done","weight":1}],
+"graderVersion":"v1","totalLatencyMs":4462,"shareId":"fx1demo"}

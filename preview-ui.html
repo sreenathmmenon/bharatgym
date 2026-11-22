@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bharat Gym — UI preview (static, fixture data)</title>
+<style>
+:root{--bg:#0C0A09;--fg:#F5F5F4;--dim:#A8A29E;--faint:#57534E;--acc:#EA580C;--ok:#16A34A;--bad:#DC2626;--amber:#FBBF24;--card:#151211;--line:#292524}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,Menlo,Consolas,monospace}
+.topbar{display:flex;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line)}
+.wordmark{letter-spacing:4px;font-weight:800;font-size:17px}.acc{color:var(--acc)}
+.sub{color:var(--faint);font-size:12px}
+.nav{margin-left:auto;display:flex;gap:14px;font-size:12px;color:var(--dim)}
+.taskbar{padding:12px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.badge{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:3px 9px;color:var(--dim)}
+.badge.lock{border-color:var(--acc);color:var(--acc)}
+.prompt{font-size:14px}.credit{color:var(--faint);font-size:11px}
+.wrap{display:grid;grid-template-columns:1fr 240px}
+.lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:10px;padding:12px 16px;align-items:start}
+.lane{background:var(--card);border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;min-height:310px}
+.lane h3{margin:0;padding:10px 12px;font-size:13px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.stamp{font-size:10px;color:var(--amber);border:1px solid var(--amber);padding:1px 6px;border-radius:3px;opacity:0;transition:opacity .3s}
+.bar{height:3px;background:var(--line)}.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}
+.log{flex:1;overflow-y:auto;max-height:185px;padding:8px 12px;font-size:11px;line-height:1.6;color:#D6D3D1}
+.call{color:var(--acc)}.ms{color:var(--faint)}.obs{color:var(--dim)}
+.claim{border-top:1px dashed var(--line);padding:8px 12px;font-size:11.5px;font-style:italic;color:var(--amber);display:none}
+.claim.lying{background:rgba(220,38,38,.07)}
+.checks{display:flex;flex-wrap:wrap;gap:5px;padding:9px 12px;border-top:1px solid var(--line)}
+.chip{font-size:10px;padding:3px 7px;border-radius:3px;border:1px solid;opacity:0;transition:opacity .2s}
+.chip.ok{color:var(--ok);border-color:var(--ok);background:rgba(22,163,74,.12)}
+.chip.bad{color:var(--bad);border-color:var(--bad);background:rgba(220,38,38,.12)}
+.reasons{padding:0 12px 6px;font-size:10.5px;color:var(--bad);line-height:1.5}
+.score{font-size:30px;font-weight:800;padding:2px 12px 10px;opacity:0}
+.score.win{color:var(--ok);text-shadow:0 0 18px rgba(22,163,74,.45)}.score.lose{color:var(--bad)}
+.den{font-size:14px;color:var(--faint);font-weight:400}
+.share{display:flex;gap:8px;align-items:center;padding:0 12px 12px;font-size:11px;color:var(--faint)}
+.share code{color:var(--dim);background:#0A0908;border:1px solid var(--line);padding:2px 6px;border-radius:4px}
+.rail{border-left:1px solid var(--line);padding:12px}
+.rail h4{margin:0 0 10px;font-size:11px;letter-spacing:2px;color:var(--faint)}
+.lb{display:flex;justify-content:space-between;gap:8px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;margin-bottom:6px;font-size:12px;background:var(--card);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.lb .k{color:var(--faint);font-size:10px}.lb.floor{border-color:var(--acc)}
+</style>
+</head>
+<body>
+<div class="topbar"><span class="wordmark">BHARAT <span class="acc">GYM</span></span><span class="sub">Where agents train for India</span>
+<div class="nav"><span>Arena</span><span style="color:var(--acc)">Enter the Gym</span><span>Stage</span></div></div>
+<div class="taskbar"><span class="badge lock">&#128274; HELD OUT</span><span class="prompt">&ldquo;dedh kilo tamatar aur ek Red Label chai dena&rdquo;</span><span class="credit">[H1] dedh kilo trap</span></div>
+<div class="wrap">
+  <div class="lanes" id="lanes"></div>
+  <div class="rail"><h4>LEADERBOARD</h4><div id="board"></div></div>
+</div>
+<script>
+const steps=[
+ ["search_inventory",'{"query":"tamatar"}',812,"tmt: tamatar - Rs 52.00/kg - stock 40"],
+ ["add_to_cart",'{"skuId":"tmt","qty":QTY,"unit":"kg"}',1304,"Added QTY kg of tamatar."],
+ ["add_to_cart",'{"skuId":"chai","qty":1,"unit":"pack"}',990,"Added 1 pack of Red Label chai."],
+ ["generate_bill",'{}',701,"BILL: Rs TOTAL for 2 lines."],
+ ["collect_payment",'{"cashRs":0,"upiRs":TOTAL}',655,"Payment recorded."]];
+const CHECKS=[["ITEM_MATCH",1,""],["QTY_PARSE",0,"'dedh kilo' billed as 2 kg"],["ARITHMETIC_TOTAL",0,"billed Rs 189.00, correct Rs 163.00"],["NO_HALLUCINATION",1,""],["FINALIZED",1,""]];
+const lanes=[
+ {id:"Claude",ok:true,qty:"1.5",total:"163.00",claim:"Bill Rs 163.00. Dedh kilo tamatar aur ek chai, ho gaya.",slow:1.15,share:"claufx"},
+ {id:"GPT",ok:false,qty:"2",total:"189.00",claim:"Done! Bill Rs 163.00 - perfectly tallied.",slow:1.0,share:"gptfx"},
+ {id:"Sarvam",ok:true,qty:"1.5",total:"163.00",claim:"Bill ban gaya: Rs 163.00. Shukriya!",slow:1.6,share:"sarvfx"},
+ {id:"Gemini",ok:false,qty:"2",total:"189.00",claim:"All items added and billed correctly!",slow:0.8,share:"gemfx"}];
+const el=document.getElementById("lanes");let finish=0;
+lanes.forEach(L=>{
+ const d=document.createElement("div");d.className="lane";
+ d.innerHTML=`<h3><span>${L.id}</span><span class="stamp"></span></h3><div class="bar"><i></i></div><div class="log"></div><div class="claim"></div><div class="checks"></div><div class="reasons"></div><div class="score"></div><div class="share">share: <code>/r/${L.share}</code><span>grader v1</span></div>`;
+ el.appendChild(d);
+ const log=d.querySelector(".log"),bar=d.querySelector(".bar i");
+ let t=300;
+ steps.forEach((s,i)=>{t+=(180+s[2]*0.5)*L.slow;
+  setTimeout(()=>{const div=document.createElement("div");
+   div.innerHTML=`<span class="call">${s[0]}</span>(${s[1].replace(/QTY/g,L.qty).replace(/TOTAL/g,L.total).slice(1,-1)}) <span class="ms">${Math.round(s[2]*L.slow)}ms</span><br><span class="obs">&nbsp;&nbsp;${s[3].replace(/QTY/g,L.qty).replace(/TOTAL/g,"Rs "+L.total)}</span>`;
+   log.appendChild(div);log.scrollTop=1e4;bar.style.width=((i+1)/12*100)+"%";},t);});
+ setTimeout(()=>{const c=d.querySelector(".claim");c.style.display="block";c.textContent="“"+L.claim+"”";if(!L.ok)c.classList.add("lying");},t+260);
+ setTimeout(()=>{finish++;const st=d.querySelector(".stamp");st.textContent=["1st","2nd","3rd","4th"][finish-1];st.style.opacity=1;
+  const ch=d.querySelector(".checks"),re=d.querySelector(".reasons");
+  CHECKS.forEach((C,j)=>{const ok=L.ok?1:C[1];const sp=document.createElement("span");sp.className="chip "+(ok?"ok":"bad");sp.title=C[2];sp.textContent=(ok?"✓ ":"✗ ")+C[0];ch.appendChild(sp);setTimeout(()=>sp.style.opacity=1,j*90);
+   if(!ok&&!L.ok){const r=document.createElement("div");r.textContent=C[0]+": "+C[2];re.appendChild(r);}});
+  const sc=d.querySelector(".score");const target=L.ok?100:56;sc.className="score "+(L.ok?"win":"lose");sc.style.opacity=1;
+  const t0=performance.now();(function tick(){const k=Math.min(1,(performance.now()-t0)/900);sc.innerHTML=Math.round(target*(1-Math.pow(1-k,3)))+`<span class="den"> / 100</span>`;if(k<1)requestAnimationFrame(tick);})();
+ },t+650);});
+const rows=[["Claude",97.2,"FRONTIER",0],["Sarvam",93.8,"FRONTIER",0],["Gemini",88.1,"FRONTIER",0],["GPT",84.5,"FRONTIER",0],["Builder #47 - SupportBot",61.0,"FLOOR",1]];
+document.getElementById("board").innerHTML=rows.map((r,i)=>`<div class="lb${r[3]?" floor":""}"><span>${i+1}. ${r[0]}</span><span><b>${r[1].toFixed(1)}</b> <span class="k">${r[2]}</span></span></div>`).join("");
+</script>
+</body>
+</html>
