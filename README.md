@@ -6,7 +6,6 @@ live; a pure-code grader reads the final environment state and scores them.
 **No AI judging AI.**
 
 Live: https://bharat-gym-production.up.railway.app
-Built solo at Builder's Day, Product (Un)Conference '26, Bengaluru (build window 13:00–17:00).
 
 ## Architecture
 
@@ -78,8 +77,4 @@ npx vitest run                      # 26 grader tests incl. twin receipts + GSTI
 `ANTHROPIC_API_KEY` `OPENAI_API_KEY` `SARVAM_API_KEY` `FIREWORKS_API_KEY` optional each;
 `EXTRA_LANES` adds any OpenAI-compatible endpoint. No keys → scripted demo lanes.
 
-## Rules compliance
-
-Scaffold only before 13:00. Mocked systems are labeled in-product. Tools used:
-Claude (planning/integration), Claude Code subagents (build lanes), Codex (GST/UPI envs),
-model APIs as contestants.
+Simulated systems (shop, GST portal, UPI rails) are labeled in-product.
