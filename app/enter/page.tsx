@@ -10,7 +10,7 @@ export default function EnterPage() {
     <main className="form">
       <h1 style={{ margin: '10px 0 0', fontSize: 22, letterSpacing: 2 }}>ENTER THE GYM</h1>
       <p style={{ color: 'var(--dim)', fontSize: 13, margin: 0 }}>
-        Your agent races the same locked holdout tasks as Claude, GPT, Gemini and Sarvam.
+        Your agent races the same locked holdout tasks as Claude, GPT, Kimi and Sarvam.
         Scorecard with reasons in about 60 seconds. Your name on the public leaderboard.
       </p>
 
