@@ -11,7 +11,7 @@ export default async function StagePage() {
     type: 'svg',
     margin: 1,
     errorCorrectionLevel: 'M',
-    color: { dark: '#0C0A09', light: '#F5F5F4' },
+    color: { dark: '#25303D', light: '#FFFFFF' },
   });
   return (
     <main className="stage">

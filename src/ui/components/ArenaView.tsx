@@ -129,7 +129,7 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
           {mode === 'live'
             ? (laneList.length
                 ? laneList.map(lane => <Lane key={lane.agentId} lane={lane} label={LANE_LABELS[lane.agentId] ?? lane.agentId} />)
-                : <div style={{ padding: 24, color: '#A8A29E' }}>Starting race&hellip; lanes appear as models take their first step.</div>)
+                : <div style={{ padding: 24, color: 'var(--dim)', fontStyle: 'italic' }}>Starting race&hellip; lanes appear as models take their first step.</div>)
             : DEMO_LANES.map(r => {
                 const lane = race.lanes[r.agentId] ?? { agentId: r.agentId, steps: [] };
                 return <Lane key={r.agentId} lane={lane} label={LANE_LABELS[r.agentId] ?? r.agentId} />;
