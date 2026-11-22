@@ -1,6 +1,6 @@
 // GET /r/:shareId — full cached Rollout (graded final state; never contains task.expected).
-import { byShareId } from '../../../src/harness/cache.js';
-import { json, bad } from '../../../src/harness/http.js';
+import { byShareId } from '../../../../src/harness/cache.js';
+import { json, bad } from '../../../../src/harness/http.js';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

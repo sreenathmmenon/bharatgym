@@ -50,6 +50,8 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
   const [mode, setMode] = useState<'demo' | 'live'>('demo');
   const [tasks, setTasks] = useState<PublicTask[]>([]);
   const [selected, setSelected] = useState('K5');
+  const [peek, setPeek] = useState(false);
+  useEffect(() => { setPeek(false); }, [selected]);
 
   useEffect(() => {
     replayFixture(DEMO_LANES);
@@ -97,7 +99,11 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
   }, [mode, graded, race.done]);
 
   const shownSplit = mode === 'live' && liveTask ? liveTask.split : DEMO_TASK.split;
-  const shownPrompt = mode === 'live' && liveTask ? (liveTask.prompt ?? 'Prompt sealed until stage reveal') : DEMO_TASK.prompt;
+  const sealedTask = mode === 'live' && liveTask?.split === 'HELD_OUT';
+  const promptText = mode === 'live' && liveTask ? liveTask.prompt : DEMO_TASK.prompt;
+  const shownPrompt = sealedTask && !peek
+    ? 'Prompt sealed \u2014 click the eye to reveal'
+    : (promptText ?? 'Prompt locked on this deployment \u2014 reveal happens on stage');
   const shownMeta = mode === 'live' && liveTask
     ? `[${liveTask.id}] ${liveTask.title}`
     : `[${DEMO_TASK.id}] ${DEMO_TASK.title}${DEMO_TASK.contributor ? ` · contributed by ${DEMO_TASK.contributor}` : ''}`;
@@ -121,6 +127,12 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
           {shownSplit === 'HELD_OUT' ? '🔒 HELD OUT' : shownSplit}
         </span>
         <span className="prompt">&ldquo;{shownPrompt}&rdquo;</span>
+        {sealedTask && (
+          <button onClick={() => setPeek(v => !v)} title={peek ? 'Hide prompt' : 'Reveal prompt'}
+                  style={{ font: 'inherit', background: 'transparent', border: '1px solid var(--line)', borderRadius: 999, cursor: 'pointer', padding: '2px 10px' }}>
+            {peek ? '\u{1F648} hide' : '\u{1F441} reveal'}
+          </button>
+        )}
         <span className="credit">{shownMeta}</span>
         <span className="badge" style={{ marginLeft: 'auto' }}>{mode === 'live' ? 'LIVE — REAL MODELS' : cached ? 'SCRIPTED DEMO REPLAY' : 'SCRIPTED DEMO'}</span>
       </div>
