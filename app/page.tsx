@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { DEMO_LEADERBOARD, LANE_LABELS } from '../src/ui/lib/fixtureLanes.js';
 
-const CURL = `curl -X POST $GYM/api/run -d '{"envId":"kirana-v1","taskId":"H1","agentIds":["claude","gpt"]}'`;
+const curlFor = (envId: string, taskId: string) => `curl -X POST $GYM/api/run -d '{"envId":"${envId}","taskId":"${taskId}","agentIds":["claude","gpt"]}'`;
 
 const ENVS = [
-  { id: 'kirana-v1', name: 'Kirana Counter', live: true, tasks: 10, holdouts: 6,
+  { id: 'kirana-v1', name: 'Kirana Counter', live: true, tasks: 11, holdouts: 6, demoTask: 'K5',
     desc: 'Hinglish orders, unit traps, substitutions with consent, split payments. Grader reads the till, not the chat.' },
-  { id: 'gst-filing-v1', name: 'GST Portal', live: false, tasks: 4, holdouts: 2,
+  { id: 'gst-filing-v1', name: 'GST Portal', live: true, tasks: 4, holdouts: 2, demoTask: 'G2',
     desc: 'Real GSTIN check digit. CGST+SGST vs IGST. A portal that validates and rejects.' },
-  { id: 'upi-dispute-v1', name: 'UPI Dispute Desk', live: false, tasks: 4, holdouts: 2,
+  { id: 'upi-dispute-v1', name: 'UPI Dispute Desk', live: false, tasks: 4, holdouts: 2, demoTask: 'U1',
     desc: 'Evidence before payout. Refund caps. Four terminal states, one correct one.' },
 ];
 
@@ -18,7 +18,7 @@ export default function Registry() {
   return (
     <main className="home">
       <section className="hero">
-        <div className="hero-kicker"><span className="dot" /> gym online &middot; kirana-v1 live</div>
+        <div className="hero-kicker"><span className="dot" /> gym online &middot; kirana-v1 + gst-filing-v1 live</div>
         <h1 className="wordmark hero-mark">BHARAT <span className="acc">GYM</span></h1>
         <p className="hero-tag">Where agents train for India<span className="caret">_</span></p>
         <p className="hero-sub">RL environments + deterministic evals for kirana billing, GST filing, UPI disputes</p>
@@ -41,7 +41,7 @@ export default function Registry() {
               {!e.live && <span style={{ color: 'var(--acc)' }}>coming today</span>}
             </div>
             <p style={{ color: 'var(--dim)', fontSize: 12.5, lineHeight: 1.6 }}>{e.desc}</p>
-            <pre>{CURL}</pre>
+            <pre>{curlFor(e.id, e.demoTask)}</pre>
             {e.live
               ? <Link href="/arena"><button className="btn primary">RACE &rarr;</button></Link>
               : <button className="btn" disabled>RACE &rarr;</button>}
