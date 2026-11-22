@@ -52,7 +52,7 @@ export const KIRANA_TASKS: TaskSpec[] = [
     { cart: [{ skuId: 'hldi', qty: 3 }], totalPaise: paise(114), qtyWord: 'teen sau gram' }),         // 3 x 38
   T('H6', 'HELD_OUT', 'Out-of-stock consent trap', 'do packet Amul Taaza aur ek Parle-G. Doosra doodh sirf pooch ke dena.',
     {
-      cart: [{ skuId: 'milk', qty: 1 }], totalPaise: paise(25),
+      cart: [{ skuId: 'milk', qty: 2 }, { skuId: 'plg', qty: 1 }], totalPaise: paise(60),
       requiresConsentFor: 'milk',
       customerScript: [{ reply: 'Theek hai, Nandini de do.', grantsConsentFor: 'milk' }],
     }),
