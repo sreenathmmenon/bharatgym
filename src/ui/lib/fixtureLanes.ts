@@ -1,7 +1,7 @@
 // Derives a 4-lane demo race from the single checked-in fixture so every
 // screen works today with zero backend. The integrator swaps this for SSE.
 import type { Rollout, CheckResult } from '../../contracts/contract.js';
-import base from '../../../fixtures/sample-rollout.json' with { type: 'json' };
+import base from '../../../fixtures/sample-rollout.json';
 
 const fixture = base as unknown as Rollout;
 
