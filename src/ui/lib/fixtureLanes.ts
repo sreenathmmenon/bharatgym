@@ -47,7 +47,10 @@ export const DEMO_LANES: Rollout[] = [
 ];
 
 export const LANE_LABELS: Record<string, string> = {
-  claude: 'Reference-A (scripted)', gpt: 'UnitConfuser (scripted)', sarvam: 'Reference-B (scripted)', gemini: 'UnitConfuser-2 (scripted)',
+  'scripted-ref': 'Reference-A (scripted)', 'scripted-confuser': 'UnitConfuser (scripted)',
+  'scripted-ref2': 'Reference-B (scripted)', 'scripted-confuser2': 'UnitConfuser-2 (scripted)',
+  claude: 'Claude (Anthropic)', gpt: 'GPT (OpenAI)', gemini: 'Gemini (Google)',
+  sarvam: 'Sarvam-M', fireworks: 'Llama 3.1 (Fireworks)',
 };
 
 export interface LeaderRow { agentId: string; kind: 'frontier' | 'floor'; avg: number; runs: number; }

@@ -5,6 +5,8 @@ import Lane from './Lane.js';
 import { useRace } from '../lib/useRace.js';
 import { DEMO_LANES, DEMO_TASK, DEMO_LEADERBOARD, LANE_LABELS, LeaderRow } from '../lib/fixtureLanes.js';
 
+interface PublicTask { id: string; envId?: string; split: 'TRAIN' | 'HELD_OUT' | 'AUDIENCE'; title: string; prompt: string | null; sealed?: boolean; contributor?: string }
+
 function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   // FLIP: remember previous row tops, translate from delta to 0 on reorder.
   const refs = useRef(new Map<string, HTMLDivElement>());
@@ -43,40 +45,98 @@ function Leaderboard({ rows }: { rows: LeaderRow[] }) {
 }
 
 export default function ArenaView({ cached = false }: { cached?: boolean }) {
-  const { race, replayFixture } = useRace();
+  const { race, replayFixture, connectSSE } = useRace();
   const [board, setBoard] = useState(DEMO_LEADERBOARD);
+  const [mode, setMode] = useState<'demo' | 'live'>('demo');
+  const [tasks, setTasks] = useState<PublicTask[]>([]);
+  const [selected, setSelected] = useState('K5');
 
   useEffect(() => {
     replayFixture(DEMO_LANES);
   }, [replayFixture]);
 
-  // When all lanes graded, nudge the board so the FLIP animation shows.
+  useEffect(() => {
+    fetch('/api/envs').then(r => r.json()).then(d => {
+      const list: PublicTask[] = (d.envs ?? []).flatMap((e: { id: string; tasks?: PublicTask[] }) =>
+        (e.tasks ?? []).map(t => ({ ...t, envId: t.envId ?? e.id })));
+      if (list.length) setTasks(list);
+    }).catch(() => {});
+  }, []);
+
+  const liveTask = tasks.find(t => t.id === selected);
+  const runLive = () => {
+    if (!selected) return;
+    setMode('live');
+    connectSSE(`/api/run?taskId=${encodeURIComponent(selected)}`);
+  };
+  const runDemo = () => {
+    setMode('demo');
+    setBoard(DEMO_LEADERBOARD);
+    replayFixture(DEMO_LANES);
+  };
+
   const laneList = Object.values(race.lanes);
   const graded = laneList.filter(l => l.rollout).length;
+
+  // Demo: nudge the board so the FLIP animation shows. Live: pull the real leaderboard.
   useEffect(() => {
-    if (graded === DEMO_LANES.length && graded > 0) {
+    if (mode === 'demo' && graded === DEMO_LANES.length && graded > 0) {
       setBoard(b => [...b].sort((x, y) => y.avg - x.avg).map((r, i) =>
         r.agentId === 'gpt' ? { ...r, avg: Math.max(60, r.avg - 2.1), runs: r.runs + 1 } : i === 0 ? { ...r, runs: r.runs + 1 } : r,
       ).sort((x, y) => y.avg - x.avg));
     }
-  }, [graded]);
+  }, [mode, graded]);
+  useEffect(() => {
+    if (mode === 'live' && graded > 0) {
+      fetch('/api/leaderboard').then(r => r.json()).then(d => {
+        const rows: LeaderRow[] = (d.rows ?? []).map((r: { agentId: string; kind: string; avg: number; runs: number }) =>
+          ({ agentId: r.agentId, kind: String(r.kind).toLowerCase() === 'floor' ? 'floor' as const : 'frontier' as const, avg: r.avg, runs: r.runs }));
+        if (rows.length) setBoard(rows);
+      }).catch(() => {});
+    }
+  }, [mode, graded, race.done]);
+
+  const shownSplit = mode === 'live' && liveTask ? liveTask.split : DEMO_TASK.split;
+  const shownPrompt = mode === 'live' && liveTask ? (liveTask.prompt ?? 'Prompt sealed until stage reveal') : DEMO_TASK.prompt;
+  const shownMeta = mode === 'live' && liveTask
+    ? `[${liveTask.id}] ${liveTask.title}`
+    : `[${DEMO_TASK.id}] ${DEMO_TASK.title}${DEMO_TASK.contributor ? ` · contributed by ${DEMO_TASK.contributor}` : ''}`;
+
+  const btn: React.CSSProperties = { font: 'inherit', cursor: 'pointer', padding: '4px 12px', border: '1px solid #EA580C', background: 'transparent', color: '#EA580C' };
 
   return (
     <>
+      <div className="taskbar" style={{ gap: 10 }}>
+        <select value={selected} onChange={e => setSelected(e.target.value)}
+                style={{ font: 'inherit', background: '#0C0A09', color: '#E7E5E4', border: '1px solid #44403C', padding: '4px 6px', maxWidth: 340 }}>
+          {tasks.map(t => (
+            <option key={t.id} value={t.id}>
+              [{t.id}] {t.split === 'HELD_OUT' ? '🔒 ' : ''}{t.title}
+            </option>
+          ))}
+          {!tasks.length && <option value="K5">[K5] Unit trap: kg vs packet</option>}
+        </select>
+        <button onClick={runLive} style={{ ...btn, background: '#EA580C', color: '#0C0A09', fontWeight: 700 }}>RUN LIVE RACE</button>
+        <button onClick={runDemo} style={btn}>DEMO REPLAY</button>
+      </div>
       <div className="taskbar">
-        <span className={'badge' + (DEMO_TASK.split === 'HELD_OUT' ? ' lock' : '')}>
-          {DEMO_TASK.split === 'HELD_OUT' ? '🔒 HELD OUT' : DEMO_TASK.split}
+        <span className={'badge' + (shownSplit === 'HELD_OUT' ? ' lock' : '')}>
+          {shownSplit === 'HELD_OUT' ? '🔒 HELD OUT' : shownSplit}
         </span>
-        <span className="prompt">&ldquo;{DEMO_TASK.prompt}&rdquo;</span>
-        <span className="credit">[{DEMO_TASK.id}] {DEMO_TASK.title}{DEMO_TASK.contributor ? ` · contributed by ${DEMO_TASK.contributor}` : ''}</span>
-        {cached && <span className="badge" style={{ marginLeft: 'auto' }}>SCRIPTED DEMO REPLAY REPLAY</span>}
+        <span className="prompt">&ldquo;{shownPrompt}&rdquo;</span>
+        <span className="credit">{shownMeta}</span>
+        <span className="badge" style={{ marginLeft: 'auto' }}>{mode === 'live' ? 'LIVE — REAL MODELS' : cached ? 'SCRIPTED DEMO REPLAY' : 'SCRIPTED DEMO'}</span>
       </div>
       <div className="arena">
         <div className="lanes">
-          {DEMO_LANES.map(r => {
-            const lane = race.lanes[r.agentId] ?? { agentId: r.agentId, steps: [] };
-            return <Lane key={r.agentId} lane={lane} label={LANE_LABELS[r.agentId] ?? r.agentId} />;
-          })}
+          {mode === 'live'
+            ? (laneList.length
+                ? laneList.map(lane => <Lane key={lane.agentId} lane={lane} label={LANE_LABELS[lane.agentId] ?? lane.agentId} />)
+                : <div style={{ padding: 24, color: '#A8A29E' }}>Starting race&hellip; lanes appear as models take their first step.</div>)
+            : DEMO_LANES.map(r => {
+                const lane = race.lanes[r.agentId] ?? { agentId: r.agentId, steps: [] };
+                return <Lane key={r.agentId} lane={lane} label={LANE_LABELS[r.agentId] ?? r.agentId} />;
+              })}
         </div>
         <Leaderboard rows={board} />
       </div>
