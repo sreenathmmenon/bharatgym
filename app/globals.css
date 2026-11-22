@@ -205,3 +205,17 @@ html, body { overflow-x: hidden; }
   .qrbox { width: 120px; right: 10px; bottom: 10px; }
   .qrbox .qr { width: 96px; height: 96px; }
 }
+
+/* ---------- About ---------- */
+.about { max-width: 760px; margin: 0 auto; padding: 30px 24px 60px; }
+.about-sec { padding: 34px 0 10px; border-bottom: 1px solid var(--line); }
+.about-sec:last-child { border-bottom: 0; }
+.about-k { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--acc); font-weight: 700; margin: 0 0 10px; }
+.about h1 { font-family: var(--serif); font-size: clamp(24px, 3.4vw, 34px); font-weight: 550; margin: 0 0 14px; line-height: 1.2; }
+.about p { color: #3D4F55; font-size: 15px; line-height: 1.7; }
+.about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 18px 0 8px; }
+.about-grid > div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+.about-grid h3 { margin: 0 0 6px; font-size: 14.5px; font-family: var(--serif); }
+.about-grid p { font-size: 13px; margin: 0; }
+.about-raw { background: #0F1D1B; color: #B8D8D2; border-radius: 12px; padding: 14px 16px; font-family: var(--mono); font-size: 11px; line-height: 1.6; overflow-x: auto; }
+.about code { font-family: var(--mono); background: #EEF4F2; padding: 1px 6px; border-radius: 6px; font-size: 12.5px; }

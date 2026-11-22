@@ -15,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <span className="sub">Where agents train for India</span>
           <nav style={{ marginLeft: 'auto', display: 'flex', gap: 14, fontSize: 12 }}>
             <Link href="/arena">Arena</Link>
+            <Link href="/about">About</Link>
             <Link href="/enter" style={{ color: 'var(--acc)' }}>Enter the Gym</Link>
             <Link href="/stage">Stage</Link>
           </nav>
