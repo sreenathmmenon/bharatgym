@@ -30,11 +30,12 @@ const toOpenAiMsgs = (system: string, ts: Msg[]) => [
       : { role: m.role, content: m.content }),
 ];
 
-function openAiCompatible(id: string, name: string, baseUrl: string, model: string, keyEnv: string): RacingAgent {
+function openAiCompatible(id: string, name: string, baseUrl: string, model: string, keyEnv: string, headers?: (key: string) => Record<string, string>): RacingAgent {
   return {
     id, name, kind: 'frontier',
     async next(system, transcript, tools) {
-      const data = await post(`${baseUrl}/chat/completions`, { authorization: `Bearer ${process.env[keyEnv]}` }, {
+      const key = process.env[keyEnv] ?? '';
+      const data = await post(`${baseUrl}/chat/completions`, headers ? headers(key) : { authorization: `Bearer ${key}` }, {
         model, messages: toOpenAiMsgs(system, transcript), tools: toOpenAiTools(tools), temperature: 0.2,
       });
       const m = data.choices?.[0]?.message;
@@ -72,8 +73,8 @@ export function frontierLanes(): RacingAgent[] {
   if (process.env.ANTHROPIC_API_KEY) lanes.push(anthropicAgent(process.env.CLAUDE_MODEL ?? 'claude-sonnet-4-5'));
   if (process.env.OPENAI_API_KEY) lanes.push(openAiCompatible('gpt', 'GPT', 'https://api.openai.com/v1', process.env.OPENAI_MODEL ?? 'gpt-5.2', 'OPENAI_API_KEY'));
   if (process.env.GEMINI_API_KEY) lanes.push(openAiCompatible('gemini', 'Gemini', 'https://generativelanguage.googleapis.com/v1beta/openai', process.env.GEMINI_MODEL ?? 'gemini-2.5-pro', 'GEMINI_API_KEY'));
-  if (process.env.SARVAM_API_KEY) lanes.push(openAiCompatible('sarvam', 'Sarvam', 'https://api.sarvam.ai/v1', process.env.SARVAM_MODEL ?? 'sarvam-m', 'SARVAM_API_KEY'));
-  if (process.env.FIREWORKS_API_KEY) lanes.push(openAiCompatible('fireworks', 'Fireworks', 'https://api.fireworks.ai/inference/v1', process.env.FIREWORKS_MODEL ?? 'accounts/fireworks/models/llama-v3p1-70b-instruct', 'FIREWORKS_API_KEY'));
+  if (process.env.SARVAM_API_KEY) lanes.push(openAiCompatible('sarvam', 'Sarvam', 'https://api.sarvam.ai/v1', process.env.SARVAM_MODEL ?? 'sarvam-105b', 'SARVAM_API_KEY', k => ({ 'api-subscription-key': k })));
+  if (process.env.FIREWORKS_API_KEY) lanes.push(openAiCompatible('fireworks', 'Fireworks', 'https://api.fireworks.ai/inference/v1', process.env.FIREWORKS_MODEL ?? 'accounts/fireworks/models/llama-v3p3-70b-instruct', 'FIREWORKS_API_KEY'));
   // ANY other provider (Modal endpoint, Together, Groq, a self-hosted vLLM...) via one env var:
   // EXTRA_LANES='[{"id":"modal","name":"Modal Llama","baseUrl":"https://xx.modal.run/v1","model":"...","keyEnv":"MODAL_API_KEY"}]'
   try {
