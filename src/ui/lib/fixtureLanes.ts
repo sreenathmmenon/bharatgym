@@ -47,8 +47,8 @@ export const DEMO_LANES: Rollout[] = [
 ];
 
 export const LANE_LABELS: Record<string, string> = {
-  'scripted-ref': 'Reference-A (scripted)', 'scripted-confuser': 'UnitConfuser (scripted)',
-  'scripted-ref2': 'Reference-B (scripted)', 'scripted-confuser2': 'UnitConfuser-2 (scripted)',
+  'scripted-ref': 'Perfect Clerk (scripted demo)', 'scripted-confuser': 'Careless Clerk (scripted demo)',
+  'scripted-ref2': 'Careful Clerk (scripted demo)', 'scripted-confuser2': 'Hasty Clerk (scripted demo)',
   claude: 'Claude (Anthropic)', gpt: 'GPT (OpenAI)', gemini: 'Gemini (Google)',
   sarvam: 'Sarvam 105B', fireworks: 'Kimi K3 (Fireworks)',
 };

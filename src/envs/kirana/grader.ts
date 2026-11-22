@@ -55,7 +55,8 @@ export function gradeKirana(s: KiranaState, task: TaskSpec): Grade {
     push('SUBSTITUTION_CONSENT', 'Customer approved the substitute before billing', ok,
       ok ? 'consent came before checkout'
         : !consent ? 'substituted without any customer consent'
-          : 'consent came after the bill was made', 2);
+          : s.billEvent == null ? 'consent given but the sale was never billed'
+            : 'consent came after the bill was made', 2);
   }
 
   // TILL_BALANCED — payment equals bill (and matches a demanded split)

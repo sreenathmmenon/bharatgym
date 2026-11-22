@@ -61,6 +61,30 @@ function openAiCompatible(id: string, name: string, baseUrl: string, model: stri
   };
 }
 
+function toAnthropicMsgs(ts: Msg[]): Record<string, unknown>[] {
+  // Native tool-calling blocks: assistant turns carry tool_use, results come back
+  // as tool_result user blocks. Text-flattened transcripts teach models to parrot.
+  const out: Record<string, unknown>[] = [];
+  let pendingId: string | null = null;
+  let n = 0;
+  for (const m of ts) {
+    if (m.role === 'assistant' && m.toolCall) {
+      pendingId = `toolu_${++n}`;
+      out.push({ role: 'assistant', content: [
+        ...(m.content ? [{ type: 'text', text: m.content }] : []),
+        { type: 'tool_use', id: pendingId, name: m.toolCall.name, input: m.toolCall.args },
+      ] });
+    } else if (m.role === 'tool') {
+      if (pendingId) { out.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: pendingId, content: m.content }] }); pendingId = null; }
+      else out.push({ role: 'user', content: `TOOL RESULT: ${m.content}` });
+    } else {
+      out.push({ role: m.role, content: m.content });
+    }
+  }
+  if (!out.length) out.push({ role: 'user', content: 'Begin the task now.' });
+  return out;
+}
+
 function anthropicAgent(model: string): RacingAgent {
   return {
     id: 'claude', name: 'Claude', kind: 'frontier',
@@ -70,10 +94,7 @@ function anthropicAgent(model: string): RacingAgent {
       }, {
         model, max_tokens: 1024, system,
         tools: tools.map(t => ({ name: t.name, description: t.description, input_schema: t.parameters })),
-        messages: (transcript.length ? transcript : [{ role: 'user' as const, content: 'Begin the task now.' }]).map(m =>
-          m.role === 'tool' ? { role: 'user', content: `TOOL RESULT: ${m.content}` }
-          : m.role === 'assistant' ? { role: 'assistant', content: m.toolCall ? `(called ${m.toolCall.name} ${JSON.stringify(m.toolCall.args)})` : (m.content || '...') }
-          : { role: 'user', content: m.content }),
+        messages: toAnthropicMsgs(transcript),
       });
       const tu = (data.content ?? []).find((c: any) => c.type === 'tool_use');
       if (tu) return { call: { name: tu.name, args: tu.input ?? {} } };
