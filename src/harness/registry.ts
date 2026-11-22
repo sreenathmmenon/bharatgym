@@ -5,6 +5,8 @@ import { KiranaEnv } from '../envs/kirana/env.js';
 import { KIRANA_TASKS } from '../envs/kirana/cases.js';
 import { GstEnv } from '../envs/gst/env.js';
 import { GST_CASES } from '../envs/gst/cases.js';
+import { UpiEnv } from '../envs/upi/env.js';
+import { UPI_CASES } from '../envs/upi/cases.js';
 import { audienceTasks } from './cache.js';
 import { GRADER_VERSION } from './runner.js';
 
@@ -20,6 +22,7 @@ export interface EnvRegistration {
 export const ENVS: EnvRegistration[] = [
   { id: 'kirana-v1', name: 'Kirana Counter', graderVersion: GRADER_VERSION, make: () => new KiranaEnv(), tasks: KIRANA_TASKS },
   { id: 'gst-filing-v1', name: 'GST Filing Desk', graderVersion: GRADER_VERSION, make: () => new GstEnv(), tasks: GST_CASES },
+  { id: 'upi-dispute-v1', name: 'UPI Dispute Desk', graderVersion: GRADER_VERSION, make: () => new UpiEnv(), tasks: UPI_CASES },
 ];
 
 export const envById = (id: string) => ENVS.find(e => e.id === id);
