@@ -10,6 +10,7 @@ export interface Sku {
   unit: 'kg' | 'packet' | 'pack' | 'piece' | 'bottle' | 'bar';
   pricePaise: number;
   stock: number;
+  barcode?: string;   // real EAN from PackSense India (Open Food Facts, ODbL) where known
 }
 
 export const INVENTORY: Sku[] = [
@@ -24,6 +25,10 @@ export const INVENTORY: Sku[] = [
   { id: 'ambu', names: ['amul butter 100g', 'amul butter'],        unit: 'pack',   pricePaise: paise(62),  stock: 12 },
   { id: 'mgi',  names: ['maggi'],                                  unit: 'packet', pricePaise: paise(15),  stock: 100 },
   { id: 'plg',  names: ['parle-g', 'parle g'],                     unit: 'packet', pricePaise: paise(10),  stock: 200 },
+  // Real packaged-goods identities from PackSense India (25,209 records derived from
+  // Open Food Facts, ODbL). Catalog carries no retail prices; prices below are ours.
+  { id: 'plg70',  names: ['parle-g 70g', 'parle g 70 gram', 'parle-g chota packet'], unit: 'packet', pricePaise: paise(8),  stock: 24, barcode: '8901719104640' },
+  { id: 'plg100', names: ['parle-g 100g', 'parle g 100 gram', 'parle-g sau gram'],   unit: 'packet', pricePaise: paise(12), stock: 18, barcode: '8901719128462' },
   { id: 'salt', names: ['tata salt', 'namak'],                     unit: 'pack',   pricePaise: paise(30),  stock: 40 },
   { id: 'oil',  names: ['fortune oil 1l', 'fortune sunflower oil', 'fortune oil'], unit: 'bottle', pricePaise: paise(142), stock: 15 },
   { id: 'anda', names: ['anda', 'egg'],                            unit: 'piece',  pricePaise: paise(7),   stock: 300 },
@@ -100,7 +105,7 @@ export class KiranaEnv implements BharatEnv {
           .filter(it => it.names.some(n => n.includes(q) || q.includes(n)))
           .slice(0, 5);
         if (!hits.length) return { text: 'No items found.' };
-        return { text: hits.map(h => `${h.id}: ${h.names[0]} - Rs ${toRs(h.pricePaise)}/${h.unit} - stock ${h.stock}`).join('\n') };
+        return { text: hits.map(h => `${h.id}: ${h.names[0]} - Rs ${toRs(h.pricePaise)}/${h.unit} - stock ${h.stock}${h.barcode ? ` - barcode ${h.barcode}` : ''}`).join('\n') };
       }
       case 'add_to_cart': {
         const sku = this.inv.get(String(call.args.skuId));

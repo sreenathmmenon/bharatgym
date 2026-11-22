@@ -36,6 +36,9 @@ export const KIRANA_TASKS: TaskSpec[] = [
       payment: { cashPaise: paise(100), upiPaise: paise(102) },
     }),
 
+  T('K11', 'TRAIN', 'Pack size: real barcode', 'Parle-G ke do sau-gram wale packet dena. Cash de raha hoon.',
+    { cart: [{ skuId: 'plg100', qty: 2 }], totalPaise: paise(24) }),                                  // 2 x 12 (PackSense barcode 8901719128462)
+
   // ---------- HELD OUT (locked until stage) ----------
   T('H1', 'HELD_OUT', 'dedh = 1.5', 'dedh kilo tamatar aur ek Red Label chai dena',
     { cart: [{ skuId: 'tmt', qty: 1.5 }, { skuId: 'chai', qty: 1 }], totalPaise: paise(163), qtyWord: 'dedh kilo' }), // 78 + 85
