@@ -73,6 +73,13 @@ export function frontierLanes(): RacingAgent[] {
   if (process.env.OPENAI_API_KEY) lanes.push(openAiCompatible('gpt', 'GPT', 'https://api.openai.com/v1', process.env.OPENAI_MODEL ?? 'gpt-5.2', 'OPENAI_API_KEY'));
   if (process.env.GEMINI_API_KEY) lanes.push(openAiCompatible('gemini', 'Gemini', 'https://generativelanguage.googleapis.com/v1beta/openai', process.env.GEMINI_MODEL ?? 'gemini-2.5-pro', 'GEMINI_API_KEY'));
   if (process.env.SARVAM_API_KEY) lanes.push(openAiCompatible('sarvam', 'Sarvam', 'https://api.sarvam.ai/v1', process.env.SARVAM_MODEL ?? 'sarvam-m', 'SARVAM_API_KEY'));
+  if (process.env.FIREWORKS_API_KEY) lanes.push(openAiCompatible('fireworks', 'Fireworks', 'https://api.fireworks.ai/inference/v1', process.env.FIREWORKS_MODEL ?? 'accounts/fireworks/models/llama-v3p1-70b-instruct', 'FIREWORKS_API_KEY'));
+  // ANY other provider (Modal endpoint, Together, Groq, a self-hosted vLLM...) via one env var:
+  // EXTRA_LANES='[{"id":"modal","name":"Modal Llama","baseUrl":"https://xx.modal.run/v1","model":"...","keyEnv":"MODAL_API_KEY"}]'
+  try {
+    const extra = JSON.parse(process.env.EXTRA_LANES ?? '[]') as { id: string; name: string; baseUrl: string; model: string; keyEnv: string }[];
+    for (const x of extra) if (process.env[x.keyEnv]) lanes.push(openAiCompatible(x.id, x.name, x.baseUrl, x.model, x.keyEnv));
+  } catch { /* malformed EXTRA_LANES ignored */ }
   return lanes;
 }
 
