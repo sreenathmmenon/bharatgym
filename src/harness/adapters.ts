@@ -21,14 +21,29 @@ async function post(url: string, headers: Record<string, string>, body: unknown)
 }
 
 const toOpenAiTools = (tools: ToolDef[]) => tools.map(t => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.parameters } }));
-const toOpenAiMsgs = (system: string, ts: Msg[]) => [
-  { role: 'system', content: system },
-  ...ts.map(m => m.role === 'tool'
-    ? { role: 'user', content: `TOOL RESULT: ${m.content}` }
-    : m.toolCall
-      ? { role: 'assistant', content: `(called ${m.toolCall.name} ${JSON.stringify(m.toolCall.args)})` }
-      : { role: m.role, content: m.content }),
-];
+const toOpenAiMsgs = (system: string, ts: Msg[]) => {
+  // Native tool-calling transcript: assistant turns carry tool_calls, results use the
+  // tool role. Flattening calls into "(called ...)" text teaches models to parrot the
+  // format as plain text instead of calling tools - observed live with gpt/kimi lanes.
+  const out: Record<string, unknown>[] = [{ role: 'system', content: system }];
+  let pendingCallId: string | null = null;
+  let n = 0;
+  for (const m of ts) {
+    if (m.role === 'assistant' && m.toolCall) {
+      pendingCallId = `call_${++n}`;
+      out.push({
+        role: 'assistant', content: m.content || null,
+        tool_calls: [{ id: pendingCallId, type: 'function', function: { name: m.toolCall.name, arguments: JSON.stringify(m.toolCall.args) } }],
+      });
+    } else if (m.role === 'tool') {
+      if (pendingCallId) { out.push({ role: 'tool', tool_call_id: pendingCallId, content: m.content }); pendingCallId = null; }
+      else out.push({ role: 'user', content: `TOOL RESULT: ${m.content}` });
+    } else {
+      out.push({ role: m.role, content: m.content });
+    }
+  }
+  return out;
+};
 
 function openAiCompatible(id: string, name: string, baseUrl: string, model: string, keyEnv: string, headers?: (key: string) => Record<string, string>): RacingAgent {
   return {

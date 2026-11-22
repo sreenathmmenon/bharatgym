@@ -23,6 +23,20 @@ async function probe(name: string, url: string, headers: Record<string, string>)
   }
 }
 
+async function probeChat(name: string, headers: Record<string, string>): Promise<Record<string, unknown>> {
+  try {
+    const r = await fetch('https://api.sarvam.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'sarvam-105b', messages: [{ role: 'user', content: 'Say hi' }], max_tokens: 5 }),
+      signal: AbortSignal.timeout(8000),
+    });
+    return { name, status: r.status, bodyPreview: (await r.text()).slice(0, 200) };
+  } catch (e) {
+    return { name, status: 0, error: String(e).slice(0, 160) };
+  }
+}
+
 export async function GET() {
   const out: Record<string, unknown>[] = [];
   if (process.env.FIREWORKS_API_KEY)
@@ -30,6 +44,8 @@ export async function GET() {
   if (process.env.SARVAM_API_KEY) {
     out.push(await probe('sarvam-v1-models', 'https://api.sarvam.ai/v1/models', { 'api-subscription-key': process.env.SARVAM_API_KEY }));
     out.push(await probe('sarvam-v1-models-bearer', 'https://api.sarvam.ai/v1/models', { authorization: `Bearer ${process.env.SARVAM_API_KEY}` }));
+    out.push(await probeChat('sarvam-chat-subkey', { 'api-subscription-key': process.env.SARVAM_API_KEY ?? '' }));
+    out.push(await probeChat('sarvam-chat-bearer', { authorization: `Bearer ${process.env.SARVAM_API_KEY}` }));
   }
   if (process.env.OPENAI_API_KEY)
     out.push(await probe('openai', 'https://api.openai.com/v1/models', { authorization: `Bearer ${process.env.OPENAI_API_KEY}` }));
