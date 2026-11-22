@@ -52,12 +52,35 @@ export default function About() {
           model text — scores the final state with named, weighted checks. Same state, same
           score, forever. The athletes are stochastic; the referee is not.
         </p>
-        <pre className="about-raw">{`// one line of GET /api/rollouts  (bharat-gym-rollouts.jsonl)
-{"runId":"...","envId":"kirana-v1","taskId":"K8","agentId":"kimi-k3",
- "steps":[{"call":{"name":"ask_customer",...},"observation":"...","latencyMs":1348}, ...],
- "finalClaimText":"Ho gaya — bill Rs 25...","score":100,
- "checks":[{"ruleId":"SUBSTITUTION_CONSENT","passed":true,"reason":"consent came before checkout","weight":2}, ...],
- "graderVersion":"v1","shareId":"c4b5a825"}`}</pre>
+        <pre className="about-raw">{`// GET /api/rollouts  \u2192  bharat-gym-rollouts.jsonl (one trajectory per line)
+{
+  "envId":        "kirana-v1",
+  "taskId":       "K8",
+  "agentId":      "kimi-k3",
+  "steps": [
+    { "call": { "name": "ask_customer",
+                "args": { "question": "Amul Taaza out of stock hai. Nandini chalega?" } },
+      "observation": "CUSTOMER: Haan theek hai, Nandini chalega.",
+      "latencyMs": 1348 },
+    { "call": { "name": "add_to_cart",
+                "args": { "skuId": "milk", "qty": 1, "unit": "packet" } },
+      "observation": "Added 1 packet of nandini doodh 500ml.",
+      "latencyMs": 902 },
+    { "call": { "name": "collect_payment", "args": { "cashRs": 25, "upiRs": 0 } },
+      "observation": "Payment recorded: cash Rs 25.00.",
+      "latencyMs": 1856 }
+  ],
+  "finalClaimText": "Ho gaya \u2014 bill Rs 25 ka payment cash mein le liya.",
+  "score": 100,
+  "checks": [
+    { "ruleId": "SUBSTITUTION_CONSENT", "passed": true,
+      "reason": "consent came before checkout", "weight": 2 },
+    { "ruleId": "TILL_BALANCED", "passed": true,
+      "reason": "payment equals the bill", "weight": 1 }
+  ],
+  "graderVersion": "v1",
+  "shareId": "c4b5a825"
+}`}</pre>
         <p>
           Labs filter these by score for rejection sampling and SFT, or plug the environment
           into RL directly — it provides exactly what RL needs: an environment and a
