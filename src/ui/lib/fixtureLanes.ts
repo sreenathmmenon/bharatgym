@@ -49,7 +49,7 @@ export const DEMO_LANES: Rollout[] = [
 export const LANE_LABELS: Record<string, string> = {
   'scripted-ref': 'Perfect Clerk (scripted demo)', 'scripted-confuser': 'Careless Clerk (scripted demo)',
   'scripted-ref2': 'Careful Clerk (scripted demo)', 'scripted-confuser2': 'Hasty Clerk (scripted demo)',
-  claude: 'claude-sonnet-4-5 \u00b7 Anthropic', gpt: 'gpt-5.4 \u00b7 OpenAI', gemini: 'gemini-2.5-pro \u00b7 Google',
+  claude: 'claude-sonnet-5-5 \u00b7 Anthropic', gpt: 'gpt-5.4 \u00b7 OpenAI', gemini: 'gemini-2.5-pro \u00b7 Google',
   sarvam: 'sarvam-105b \u00b7 Sarvam', fireworks: 'kimi-k3 \u00b7 Fireworks',
 };
 
