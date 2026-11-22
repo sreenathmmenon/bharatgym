@@ -36,15 +36,18 @@ export function useRace() {
     });
 
   const setClaim = (agentId: string, claim: string) =>
-    setRace(r => ({ ...r, lanes: { ...r.lanes, [agentId]: { ...r.lanes[agentId], claim } } }));
+    setRace(r => {
+      const lane = r.lanes[agentId] ?? { agentId, steps: [] };
+      return { ...r, lanes: { ...r.lanes, [agentId]: { ...lane, claim } } };
+    });
 
   const setVerdict = (agentId: string, rollout: Rollout) => {
     finishCount.current += 1;
     const order = finishCount.current;
-    setRace(r => ({
-      ...r,
-      lanes: { ...r.lanes, [agentId]: { ...r.lanes[agentId], rollout, finishOrder: order } },
-    }));
+    setRace(r => {
+      const lane = r.lanes[agentId] ?? { agentId, steps: [] };
+      return { ...r, lanes: { ...r.lanes, [agentId]: { ...lane, rollout, finishOrder: order } } };
+    });
   };
 
   /** Replay pre-graded rollouts with staggered timers. */
