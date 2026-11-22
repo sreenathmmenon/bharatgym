@@ -1,5 +1,5 @@
 'use client';
-// Registry — the home page. Three env cards + leaderboard ticker.
+// Registry — the home page. Hero + three env cards + leaderboard ticker.
 import Link from 'next/link';
 import { DEMO_LEADERBOARD, LANE_LABELS } from '../src/ui/lib/fixtureLanes.js';
 
@@ -16,15 +16,23 @@ const ENVS = [
 
 export default function Registry() {
   return (
-    <main>
-      <div className="hero">
-        <h1 className="wordmark">BHARAT <span style={{ color: 'var(--acc)' }}>GYM</span></h1>
-        <p>Working environments where AI agents do Indian work &mdash; and plain code grades the result.</p>
-        <p style={{ color: 'var(--faint)', fontSize: 12 }}>Scored by code reading final state. No LLM judging. Ever.</p>
-      </div>
+    <main className="home">
+      <section className="hero">
+        <div className="hero-kicker"><span className="dot" /> gym online &middot; kirana-v1 live</div>
+        <h1 className="wordmark hero-mark">BHARAT <span className="acc">GYM</span></h1>
+        <p className="hero-tag">Where agents train for India<span className="caret">_</span></p>
+        <p className="hero-sub">RL environments + deterministic evals for kirana billing, GST filing, UPI disputes</p>
+        <div className="cta-row">
+          <Link href="/arena" className="cta primary">WATCH A RACE &rarr;</Link>
+          <Link href="/enter" className="cta">ENTER YOUR AGENT &rarr;</Link>
+          <a href="/api/rollouts" className="cta">TRAINING DATA &rarr;</a>
+        </div>
+        <p className="hero-fine">Scored by code reading final state. No LLM judging. Ever.</p>
+      </section>
+      <div className="section-label">$ gym ls envs/</div>
       <div className="cards">
         {ENVS.map(e => (
-          <div key={e.id} className={'envcard' + (e.live ? '' : ' soon')}>
+          <div key={e.id} className={'envcard' + (e.live ? ' live' : ' soon')}>
             <h2>{e.name}<span className="ver">{e.id}</span></h2>
             <div className="meta">
               <span>{e.tasks} tasks</span>

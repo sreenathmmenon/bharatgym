@@ -16,12 +16,12 @@ export default function Lane({ lane, label }: { lane: LaneState; label: string }
 
   const running = !lane.rollout;
   return (
-    <div className="lane" style={running ? { boxShadow: '0 0 0 1px rgba(234,88,12,.35)' } : undefined}>
+    <div className={'lane' + (running ? ' running' : ' done')}>
       <h3>
         <span>{label}</span>
         {lane.finishOrder
-          ? <span className="stamp">{lane.claim?.startsWith('[DNF]') ? 'DNF' : STAMP[lane.finishOrder] ?? lane.finishOrder + 'th'}</span>
-          : <span style={{ color: 'var(--faint)', fontSize: 10 }}>running&hellip;</span>}
+          ? <span className={'stamp' + (lane.claim?.startsWith('[DNF]') ? ' dnf' : lane.finishOrder === 1 ? ' first' : '')}>{lane.claim?.startsWith('[DNF]') ? 'DNF' : STAMP[lane.finishOrder] ?? lane.finishOrder + 'th'}</span>
+          : <span className="runtag">running&hellip;</span>}
       </h3>
       <div className="bar"><i style={{ width: `${Math.min(100, (lane.steps.length / MAX_STEPS) * 100)}%` }} /></div>
       <div className="log" ref={logRef}>

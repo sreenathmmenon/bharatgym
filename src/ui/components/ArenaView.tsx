@@ -30,7 +30,7 @@ function Leaderboard({ rows }: { rows: LeaderRow[] }) {
   }, [rows]);
   return (
     <div className="rail">
-      <h4>LEADERBOARD</h4>
+      <h4><span className="livedot" aria-hidden="true" />LEADERBOARD <span className="livetag">LIVE</span></h4>
       {rows.map((r, i) => (
         <div key={r.agentId} className={'lb-row' + (r.kind === 'floor' ? ' floor' : '')}
              ref={el => { if (el) refs.current.set(r.agentId, el); }}>
@@ -102,13 +102,10 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
     ? `[${liveTask.id}] ${liveTask.title}`
     : `[${DEMO_TASK.id}] ${DEMO_TASK.title}${DEMO_TASK.contributor ? ` · contributed by ${DEMO_TASK.contributor}` : ''}`;
 
-  const btn: React.CSSProperties = { font: 'inherit', cursor: 'pointer', padding: '4px 12px', border: '1px solid #EA580C', background: 'transparent', color: '#EA580C' };
-
   return (
     <>
-      <div className="taskbar" style={{ gap: 10 }}>
-        <select value={selected} onChange={e => setSelected(e.target.value)}
-                style={{ font: 'inherit', background: '#0C0A09', color: '#E7E5E4', border: '1px solid #44403C', padding: '4px 6px', maxWidth: 340 }}>
+      <div className="taskbar controlbar">
+        <select className="ctl-select" value={selected} onChange={e => setSelected(e.target.value)}>
           {tasks.map(t => (
             <option key={t.id} value={t.id}>
               [{t.id}] {t.split === 'HELD_OUT' ? '🔒 ' : ''}{t.title}
@@ -116,8 +113,8 @@ export default function ArenaView({ cached = false }: { cached?: boolean }) {
           ))}
           {!tasks.length && <option value="K5">[K5] Unit trap: kg vs packet</option>}
         </select>
-        <button onClick={runLive} style={{ ...btn, background: '#EA580C', color: '#0C0A09', fontWeight: 700 }}>RUN LIVE RACE</button>
-        <button onClick={runDemo} style={btn}>DEMO REPLAY</button>
+        <button onClick={runLive} className="ctl-btn ctl-live"><span className="ctl-dot" aria-hidden="true" />RUN LIVE RACE</button>
+        <button onClick={runDemo} className="ctl-btn ctl-ghost">DEMO REPLAY</button>
       </div>
       <div className="taskbar">
         <span className={'badge' + (shownSplit === 'HELD_OUT' ? ' lock' : '')}>
